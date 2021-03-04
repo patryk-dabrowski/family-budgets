@@ -16,6 +16,9 @@ class BudgetList(models.Model):
 class BudgetCategory(models.Model):
     name = models.CharField(max_length=32)
 
+    def __str__(self):
+        return self.name
+
 
 class Budget(models.Model):
     BUDGET_INCOME_TYPE = 1
@@ -33,3 +36,6 @@ class Budget(models.Model):
     category = models.ForeignKey(BudgetCategory, related_name='budget_item', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name

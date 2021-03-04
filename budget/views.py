@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from budget.models import BudgetList
-from budget.serializers import OwnBudgetListSerializer, SharedBudgetListSerializer
+from budget.models import BudgetList, Budget
+from budget.serializers import OwnBudgetListSerializer, SharedBudgetListSerializer, BudgetSerializer
 
 
 class BudgetListView(generics.ListAPIView):
@@ -54,3 +54,17 @@ class OwnBudgetShareView(APIView):
         users = User.objects.filter(email__in=share_to)
         instance.share_to.set(users)
         return Response({})
+
+
+class OwnBudgetItemsListCreateView(generics.ListCreateAPIView):
+    queryset = Budget.objects.all()
+    serializer_class = BudgetSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(author=self.request.user, budget_list=self.kwargs['list_pk'])
+
+    def perform_create(self, serializer):
+        budget_list = get_object_or_404(BudgetList, pk=self.kwargs['list_pk'])
+        serializer.save(author=self.request.user, budget_list=budget_list)

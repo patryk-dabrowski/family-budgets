@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from budget.models import BudgetList
+from budget.models import BudgetList, Budget
 
 
 class BudgetListSerializer(serializers.ModelSerializer):
@@ -17,3 +17,9 @@ class OwnBudgetListSerializer(BudgetListSerializer):
 
 class SharedBudgetListSerializer(BudgetListSerializer):
     pass
+
+
+class BudgetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Budget
+        fields = ('id', 'name', 'budget_type', 'price', 'category', 'created_at', 'updated_at')
