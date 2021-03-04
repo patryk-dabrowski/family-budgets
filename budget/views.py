@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, filters
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 
 from budget.models import BudgetList, Budget, BudgetCategory
 from budget.permissions import IsSharedBudgetPermittedToAccess, IsOwnBudgetPermittedToAccess
@@ -67,6 +67,7 @@ class OwnBudgetItemsListCreateView(generics.ListCreateAPIView):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     filterset_fields = ('category', 'budget_type',)
     search_fields = ('name',)
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -95,6 +96,7 @@ class SharedBudgetItemsListCreateView(generics.ListCreateAPIView):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     filterset_fields = ('category', 'budget_type',)
     search_fields = ('name',)
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()
