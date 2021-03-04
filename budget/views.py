@@ -1,5 +1,9 @@
+from django.contrib.auth import get_user_model
 from rest_framework import generics
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from budget.models import BudgetList
 from budget.serializers import OwnBudgetListSerializer, SharedBudgetListSerializer
@@ -37,3 +41,15 @@ class SharedBudgetListView(BudgetListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(share_to=self.request.user)
+
+
+class OwnBudgetShareView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, pk):
+        share_to = request.data.get('share_to', [])
+        instance = get_object_or_404(BudgetList, pk=pk, author=request.user)
+        User = get_user_model()
+        users = User.objects.filter(email__in=share_to)
+        instance.share_to.set(users)
+        return Response({})
