@@ -23,6 +23,13 @@ class BudgetListView(generics.ListAPIView):
         return queryset.filter(author=self.request.user)
 
 
+class OwnBudgetListCreateView(BudgetListView, generics.CreateAPIView):
+    serializer_class = OwnBudgetListSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
 class OwnBudgetRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BudgetList.objects.all()
     serializer_class = OwnBudgetListSerializer
@@ -31,13 +38,6 @@ class OwnBudgetRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(author=self.request.user)
-
-
-class OwnBudgetListCreateView(BudgetListView, generics.CreateAPIView):
-    serializer_class = OwnBudgetListSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
 
 
 class SharedBudgetListView(BudgetListView):
@@ -57,13 +57,12 @@ class OwnBudgetShareView(APIView):
         User = get_user_model()
         users = User.objects.filter(email__in=share_to)
         instance.share_to.set(users)
-        return Response({})
+        return Response({"status": True}, status=200)
 
 
-class OwnBudgetItemsListCreateView(generics.ListCreateAPIView):
+class BudgetItemsListCreateBaseView(generics.ListCreateAPIView):
     queryset = Budget.objects.all()
     serializer_class = BudgetSerializer
-    permission_classes = (IsOwnBudgetPermittedToAccess,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     filterset_fields = ('category', 'budget_type',)
     search_fields = ('name',)
@@ -72,50 +71,44 @@ class OwnBudgetItemsListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(budget_list=self.kwargs['list_pk'])
+
+
+class OwnBudgetItemsListCreateView(BudgetItemsListCreateBaseView):
+    permission_classes = (IsAuthenticated, IsOwnBudgetPermittedToAccess,)
 
     def perform_create(self, serializer):
         budget_list = get_object_or_404(BudgetList, pk=self.kwargs['list_pk'], author=self.request.user)
         serializer.save(author=self.request.user, budget_list=budget_list)
 
 
-class OwnBudgetItemsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class BudgetItemsRetrieveUpdateDestroyBaseView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Budget.objects.all()
     serializer_class = BudgetSerializer
-    permission_classes = (IsOwnBudgetPermittedToAccess,)
 
     def get_queryset(self):
         queryset = super().get_queryset()
         budget_list = get_object_or_404(BudgetList, pk=self.kwargs['list_pk'])
-        return queryset.filter(author=self.request.user, budget_list=budget_list)
+        return queryset.filter(budget_list=budget_list)
 
 
-class SharedBudgetItemsListCreateView(generics.ListCreateAPIView):
-    queryset = Budget.objects.all()
-    serializer_class = BudgetSerializer
-    permission_classes = (IsSharedBudgetPermittedToAccess,)
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
-    filterset_fields = ('category', 'budget_type',)
-    search_fields = ('name',)
-    pagination_class = PageNumberPagination
+class OwnBudgetItemsRetrieveUpdateDestroyView(BudgetItemsRetrieveUpdateDestroyBaseView):
+    permission_classes = (IsAuthenticated, IsOwnBudgetPermittedToAccess,)
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(budget_list=self.kwargs['list_pk'])
+        return queryset.filter(author=self.request.user)
+
+
+class SharedBudgetItemsListCreateView(BudgetItemsListCreateBaseView):
+    permission_classes = (IsAuthenticated, IsSharedBudgetPermittedToAccess,)
 
     def perform_create(self, serializer):
         budget_list = get_object_or_404(BudgetList, pk=self.kwargs['list_pk'])
         serializer.save(author=self.request.user, budget_list=budget_list)
 
 
-class SharedBudgetItemsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Budget.objects.all()
-    serializer_class = BudgetSerializer
-    permission_classes = (IsSharedBudgetPermittedToAccess,)
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        budget_list = get_object_or_404(BudgetList, pk=self.kwargs['list_pk'])
-        return queryset.filter(budget_list=budget_list)
+class SharedBudgetItemsRetrieveUpdateDestroyView(BudgetItemsRetrieveUpdateDestroyBaseView):
+    permission_classes = (IsAuthenticated, IsSharedBudgetPermittedToAccess,)
 
     def update(self, request, *args, **kwargs):
         self._check_permission(kwargs, request)
