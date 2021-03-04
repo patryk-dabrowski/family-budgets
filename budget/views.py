@@ -1,4 +1,3 @@
-# Create your views here.
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
@@ -12,12 +11,15 @@ class BudgetListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
 
 
-class OwnBudgetListView(BudgetListView):
+class OwnBudgetListCreateView(BudgetListView, generics.CreateAPIView):
     serializer_class = OwnBudgetListSerializer
 
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(author=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class SharedBudgetListView(BudgetListView):
