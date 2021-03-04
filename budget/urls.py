@@ -1,7 +1,8 @@
 from django.urls import path
 
 from budget.views import OwnBudgetListCreateView, SharedBudgetListView, OwnBudgetRetrieveUpdateDestroyView, \
-    OwnBudgetShareView, OwnBudgetItemsListCreateView, OwnBudgetItemsRetrieveUpdateDestroyView
+    OwnBudgetShareView, OwnBudgetItemsListCreateView, OwnBudgetItemsRetrieveUpdateDestroyView, \
+    SharedBudgetItemsListCreateView, SharedBudgetItemsRetrieveUpdateDestroyView
 
 urlpatterns = [
     path('', OwnBudgetListCreateView.as_view(), name='own_budget_list_create'),
@@ -11,4 +12,7 @@ urlpatterns = [
     path('<int:list_pk>/items/<int:pk>/', OwnBudgetItemsRetrieveUpdateDestroyView.as_view(),
          name='own_budget_items_retrieve_update_destroy'),
     path('shared/', SharedBudgetListView.as_view(), name='shared_budget_list'),
+    path('shared/<int:list_pk>/items/', SharedBudgetItemsListCreateView.as_view(), name='shared_budget_items_list_create'),
+    path('shared/<int:list_pk>/items/<int:pk>/', SharedBudgetItemsRetrieveUpdateDestroyView.as_view(),
+         name='shared_budget_items_retrieve_update_destroy'),
 ]

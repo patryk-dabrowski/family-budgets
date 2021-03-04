@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from budget.models import BudgetList, Budget
@@ -19,7 +20,15 @@ class SharedBudgetListSerializer(BudgetListSerializer):
     pass
 
 
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ('username', 'email',)
+
+
 class BudgetSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+
     class Meta:
         model = Budget
-        fields = ('id', 'name', 'budget_type', 'price', 'category', 'created_at', 'updated_at')
+        fields = ('id', 'author', 'name', 'budget_type', 'price', 'category', 'created_at', 'updated_at')
