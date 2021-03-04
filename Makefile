@@ -1,4 +1,4 @@
-.PHONY: run stop build rebuild test purge logs cli collectstatic migrate makemigrations startapp help
+.PHONY: run stop build rebuild test purge logs cli shell collectstatic migrate makemigrations startapp help
 
 run:						## Run application
 	docker-compose up -d
@@ -22,6 +22,9 @@ logs:						## Display logs
 
 cli:						## Open command line
 	docker-compose run --rm web sh
+
+shell:						## Open django shell
+	docker-compose run --rm web python manage.py shell
 
 collectstatic:					## Collect static files
 	docker-compose run --rm web python manage.py collectstatic --no-input --clear
