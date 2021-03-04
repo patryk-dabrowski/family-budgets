@@ -6,9 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from budget.models import BudgetList, Budget
+from budget.models import BudgetList, Budget, BudgetCategory
 from budget.permissions import IsSharedBudgetPermittedToAccess, IsOwnBudgetPermittedToAccess
-from budget.serializers import OwnBudgetListSerializer, SharedBudgetListSerializer, BudgetSerializer
+from budget.serializers import OwnBudgetListSerializer, SharedBudgetListSerializer, BudgetSerializer, \
+    BudgetCategorySerializer
 
 
 class BudgetListView(generics.ListAPIView):
@@ -119,3 +120,17 @@ class SharedBudgetItemsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyA
         queryset = self.get_queryset()
         if not queryset.filter(author=request.user, pk=kwargs['pk']).exists():
             self.permission_denied(request)
+
+
+class CategoriesBaseView:
+    queryset = BudgetCategory.objects.all()
+    serializer_class = BudgetCategorySerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class CategoriesListCreateView(CategoriesBaseView, generics.ListCreateAPIView):
+    pass
+
+
+class CategoriesRetrieveUpdateDestroyView(CategoriesBaseView, generics.RetrieveUpdateDestroyAPIView):
+    pass

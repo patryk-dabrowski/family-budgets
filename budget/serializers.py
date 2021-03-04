@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from budget.models import BudgetList, Budget
+from budget.models import BudgetList, Budget, BudgetCategory
 
 
 class BudgetListSerializer(serializers.ModelSerializer):
@@ -32,3 +32,9 @@ class BudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Budget
         fields = ('id', 'author', 'name', 'budget_type', 'price', 'category', 'created_at', 'updated_at')
+
+
+class BudgetCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BudgetCategory
+        fields = ('id', 'name',)
