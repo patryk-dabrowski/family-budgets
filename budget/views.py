@@ -19,8 +19,9 @@ class BudgetListView(generics.ListAPIView):
         return queryset.filter(author=self.request.user)
 
 
-class OwnBudgetDestroyView(generics.DestroyAPIView):
+class OwnBudgetRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BudgetList.objects.all()
+    serializer_class = OwnBudgetListSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
