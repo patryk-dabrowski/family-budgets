@@ -68,3 +68,14 @@ class OwnBudgetItemsListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         budget_list = get_object_or_404(BudgetList, pk=self.kwargs['list_pk'])
         serializer.save(author=self.request.user, budget_list=budget_list)
+
+
+class OwnBudgetItemsRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Budget.objects.all()
+    serializer_class = BudgetSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        budget_list = get_object_or_404(BudgetList, pk=self.kwargs['list_pk'])
+        return queryset.filter(author=self.request.user, budget_list=budget_list)
