@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, filters
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -63,6 +64,9 @@ class OwnBudgetItemsListCreateView(generics.ListCreateAPIView):
     queryset = Budget.objects.all()
     serializer_class = BudgetSerializer
     permission_classes = (IsOwnBudgetPermittedToAccess,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    filterset_fields = ('category', 'budget_type',)
+    search_fields = ('name',)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -88,6 +92,9 @@ class SharedBudgetItemsListCreateView(generics.ListCreateAPIView):
     queryset = Budget.objects.all()
     serializer_class = BudgetSerializer
     permission_classes = (IsSharedBudgetPermittedToAccess,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    filterset_fields = ('category', 'budget_type',)
+    search_fields = ('name',)
 
     def get_queryset(self):
         queryset = super().get_queryset()

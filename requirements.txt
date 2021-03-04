@@ -2,6 +2,7 @@ asgiref==3.3.1
 bcrypt==3.2.0
 cffi==1.14.4
 Django==3.1.7
+django-filter==2.4.0
 djangorestframework==3.12.2
 psycopg2==2.8.6
 pycparser==2.20
