@@ -10,13 +10,22 @@ class BudgetListView(generics.ListAPIView):
     serializer_class = None
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(author=self.request.user)
 
-class OwnBudgetListCreateView(BudgetListView, generics.CreateAPIView):
-    serializer_class = OwnBudgetListSerializer
+
+class OwnBudgetDestroyView(generics.DestroyAPIView):
+    queryset = BudgetList.objects.all()
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(author=self.request.user)
+
+
+class OwnBudgetListCreateView(BudgetListView, generics.CreateAPIView):
+    serializer_class = OwnBudgetListSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
